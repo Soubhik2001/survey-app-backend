@@ -2,13 +2,14 @@ const express = require('express');
 const mongoose = require('mongoose');
 const axios = require('axios');
 
+// Get Mongoose models
 const SurveyTemplate = mongoose.model('SurveyTemplate');
 const SurveySubmission = mongoose.model('SurveySubmission');
 
 const router = express.Router();
 
 /**
- * Endpoint 1: GET /api/weather
+ * GET /api/weather
  * Fetches 3-day forecast for a given city.
  * We'll use the Open-Meteo API (no key required!)
  */
@@ -46,7 +47,7 @@ router.get('/weather', async (req, res) => {
 });
 
 /**
- * Endpoint 2: GET /api/surveys
+ * GET /api/surveys
  * Gets a list of all available survey templates for the dashboard.
  */
 router.get('/surveys', async (req, res) => {
@@ -60,7 +61,7 @@ router.get('/surveys', async (req, res) => {
 });
 
 /**
- * Endpoint 3: GET /api/surveys/:id
+ * GET /api/surveys/:id
  * Gets the full JSON data for a single survey to render the form.
  */
 router.get('/surveys/:id', async (req, res) => {
@@ -82,7 +83,7 @@ router.get('/surveys/:id', async (req, res) => {
 });
 
 /**
- * Endpoint 4: POST /api/surveys/:id/submit
+ * POST /api/surveys/:id/submit
  * Saves a user's completed survey submission.
  */
 router.post('/surveys/:id/submit', async (req, res) => {
@@ -94,16 +95,14 @@ router.post('/surveys/:id/submit', async (req, res) => {
       return res.status(400).json({ error: 'Invalid survey ID format.' });
     }
 
-    // Check if the template exists
     const templateExists = await SurveyTemplate.findById(id);
     if (!templateExists) {
       return res.status(404).json({ error: 'Survey template not found.' });
     }
 
-    // Create new submission
     const newSubmission = new SurveySubmission({
       surveyTemplate: id,
-      answers: answers // Store the { q_1: "...", q_2: "..." } object
+      answers: answers 
     });
 
     await newSubmission.save();
@@ -116,13 +115,14 @@ router.post('/surveys/:id/submit', async (req, res) => {
 });
 
 /**
- * Endpoint 5: GET /api/submissions
+ * GET /api/submissions
  * Gets all submissions, grouped by survey template.
  */
 router.get('/submissions', async (req, res) => {
   try {
+    // Populate 'surveyTemplate' to get the title for grouping
     const submissions = await SurveySubmission.find({})
-      .populate('surveyTemplate', 'title'); // Replaces the 'surveyTemplate' ID with the full object, but only selects its 'title'
+      .populate('surveyTemplate', 'title');
 
     // Group the submissions by survey title
     const grouped = submissions.reduce((acc, sub) => {

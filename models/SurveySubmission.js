@@ -2,9 +2,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const surveySubmissionSchema = new Schema({
+    // Links this submission to the SurveyTemplate it's answering
     surveyTemplate: {
         type: Schema.Types.ObjectId,
-        ref: 'SurveyTemplate',
+        ref: 'SurveyTemplate', // Refers to the 'SurveyTemplate' model
         required: true
     },
     // Store the user's answers as a flexible key-value object.
